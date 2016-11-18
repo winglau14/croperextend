@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>AlloyCrop base on AlloyFinger</title>
+    <link rel="stylesheet" href="style/style.css">
+</head>
+
+<body>
+    <input name="file" type="file" onchange="getFile(this)" /> 
+    <img class="img" style="display:none;" src="" alt="">
+    <div id="crop_result" style="text-align: center; padding-top: 30px; height: 230px; line-height: 300px;"></div>
+    <div class="btn_box" style="display:none;">
+        <a id="crop_btn">样式一</a>
+        <a id="crop_circle_btn">样式二</a>
+    </div>
+
+    <script src="./js/transform.js"></script>
+    <script src="./js/alloy_finger.js"></script>
+    <script src="./js/alloy_crop.js"></script>
+    <script>
+    var choseImgFile;
+    //chose img
+        function getFile(obj){ 
+            var file = obj.files[0];
+            var temUrl = window.URL.createObjectURL(file);//生成图片url
+            var objImg = document.querySelector('.img');
+            var canvas = document.querySelector('canvas');
+            var crop_result = document.querySelector('#crop_result');
+            var btn_box = document.querySelector(".btn_box");
+                objImg.src = temUrl;
+                choseImgFile = temUrl;
+                obj.value = null;
+                objImg.style.display = "block";
+                crop_result.getElementsByTagName('canvas').length > 0 && crop_result.removeChild(canvas);
+                typeof file === 'object' ? btn_box.style.display = "block" : btn_box.style.display = "none";
+        }
+
+        
+        var crop_btn = document.querySelector("#crop_btn");
+        var crop_result = document.querySelector("#crop_result");
+        var crop_circle_btn = document.querySelector("#crop_circle_btn");
+
+        function showToolPanel() {
+            crop_btn.style.display = "inline-block";
+            crop_result.style.display = "block";
+            crop_circle_btn.style.display = "inline-block";
+        }
+
+        function hideToolPanel() {
+            crop_btn.style.display = "none";
+            crop_result.style.display = "none";
+            crop_circle_btn.style.display = "none";
+            crop_result.innerHTML = "";
+        }
+
+        new AlloyFinger(crop_btn, {
+            tap: function () {
+                hideToolPanel();
+                document.querySelector('.img').style.display = 'none';
+                new AlloyCrop({
+                    image_src:choseImgFile,
+                    width: 200,
+                    height: 100,
+                    ok: function (base64, canvas) {
+                        crop_result.appendChild(canvas);
+                        crop_result.querySelector("canvas").style.borderRadius = "0%";
+                        showToolPanel();
+                        document.querySelector('.img').style.display = 'none';
+                    },
+                    cancel: function () {
+                        showToolPanel();
+                        document.querySelector('.img').style.display = 'block';
+                    },
+                    ok_text: "确定", // optional parameters , the default value is ok
+                    cancel_text: "取消" // optional parameters , the default value is cancel
+                });
+
+            }
+        });
+
+        new AlloyFinger(crop_circle_btn, {
+            tap: function () {
+                hideToolPanel();
+                document.querySelector('.img').style.display = 'none';
+                new AlloyCrop({
+                    image_src:choseImgFile,
+                    circle: true,
+                    width: 200,
+                    height: 200,
+                    ok: function (base64, canvas) {
+                        crop_result.appendChild(canvas);
+                        crop_result.querySelector("canvas").style.borderRadius = "50%";
+                        showToolPanel();
+                        document.querySelector('.img').style.display = 'none';
+                    },
+                    cancel: function () {
+                        showToolPanel();
+                        document.querySelector('.img').style.display = 'show';
+                    },
+                    ok_text: "确定", // optional parameters , the default value is ok
+                    cancel_text: "取消" // optional parameters , the default value is cancel
+
+                });
+
+
+            }
+        });
+    </script>
+</body>
+</html>
